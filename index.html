@@ -21,10 +21,7 @@
       <div id="studentTable"></div>
     </div>
 
-    <div id="classList" style="display: none">
-      <h2>Class List</h2>
-      <div id="classTable"></div>
-    </div>
+    <div id="classList" style="display: none"></div>
 
     <div id="loading" style="display: none">
       <img src="loading.gif" alt="Loading..." width="250px" />
@@ -67,7 +64,7 @@
           studentData: studentData,
         };
 
-        fetch("https://qnldf52lna.execute-api.us-east-1.amazonaws.com/wp-api/contact-us", {
+        fetch("https://pcl1om1ur1.execute-api.us-east-1.amazonaws.com/student-sorter", {
           method: "POST",
           body: JSON.stringify(body),
           headers: {
@@ -79,7 +76,7 @@
             classData = data;
             console.log(classData);
             hide(["loading"]);
-            displayCsvTable(classData, "classTable");
+            appendClassData(classData, "classList");
             show(["classList"]);
           })
           .catch((error) => {
