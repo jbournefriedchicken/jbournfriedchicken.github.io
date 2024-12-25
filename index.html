@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Sorter Program</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="utils.js"></script>
+  </head>
+
+  <body>
+    <h1>Student Sorter</h1>
+    <input type="file" id="csvFileInput" accept=".csv" />
+
+    <div id="studentList" style="display: none">
+      <div>Number of Classes: <input type="number" id="noOfClasses" value="6" /></div>
+      <div id="buttonContainer">
+        <button id="sortButton" onclick="sortStudents()">Sort Students Into Classes</button>
+      </div>
+      <div id="studentTable"></div>
+    </div>
+
+    <div id="classList" style="display: none">
+      <h2>Class List</h2>
+      <div id="classTable"></div>
+    </div>
+
+    <div id="loading" style="display: none">
+      <img src="loading.gif" alt="Loading..." width="250px" />
+    </div>
+
+    <script>
+      studentData = undefined;
+      classData = undefined;
+      loading = false;
+
+      document.getElementById("csvFileInput").addEventListener("change", function (event) {
+        hide(["studentList", "classList", "loading"]);
+        const file = event.target.files[0];
+        if (file && file.type === "text/csv") {
+          Papa.parse(file, {
+            complete: function (results) {
+              studentData = results.data;
+              displayCsvTable(studentData, "studentTable");
+              console.log(studentData);
+            },
+            header: true, // Set to true to use the first row as header row
+            skipEmptyLines: true, // Skips empty lines in the CSV
+          });
+          show(["studentList"]);
+        } else {
+          alert("Please select a valid CSV file.");
+        }
+      });
+
+      function sortStudents() {
+        hide(["studentList", "classList", "loading"]);
+        if (!studentData) {
+          alert("Please select a CSV file first.");
+          return;
+        }
+
+        show(["loading"]);
+        const body = {
+          noOfClasses: document.getElementById("noOfClasses").value,
+          studentData: studentData,
+        };
+
+        fetch("https://qnldf52lna.execute-api.us-east-1.amazonaws.com/wp-api/contact-us", {
+          method: "POST",
+          body: JSON.stringify(body),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            classData = data;
+            console.log(classData);
+            hide(["loading"]);
+            displayCsvTable(classData, "classTable");
+            show(["classList"]);
+          })
+          .catch((error) => {
+            console.log(error);
+            hide(["loading"]);
+            alert("There is an error with the Student Sorter Backend.");
+          });
+      }
+    </script>
+  </body>
+</html>
